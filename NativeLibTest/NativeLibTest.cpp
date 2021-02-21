@@ -99,7 +99,7 @@ NATIVELIBTEST_API void grabber_destroy(struct DX11ScreenGrabber *grabber)
 		grabber->dest_view->Release();
 }
 
-NATIVELIBTEST_API struct DX11ScreenGrabber *grabber_create(ID3D11Resource *tex)
+NATIVELIBTEST_API struct DX11ScreenGrabber *grabber_create(ID3D11Resource *tex, UINT display)
 {
 	struct DX11ScreenGrabber *grabber;
 	HRESULT res;
@@ -121,7 +121,7 @@ NATIVELIBTEST_API struct DX11ScreenGrabber *grabber_create(ID3D11Resource *tex)
 		goto err;
 	}
 
-	res = grabber->adapter->EnumOutputs(0, &grabber->output);
+	res = grabber->adapter->EnumOutputs(display, &grabber->output);
 	if (res != S_OK) {
 		*ret = -3;
 		goto err;

@@ -243,3 +243,6 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+
+New\ Unity\ Project/Library
+New\ Unity\ Project/Temp

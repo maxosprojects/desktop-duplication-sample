@@ -10,7 +10,7 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 
-NATIVELIBTEST_API int grabber_get_next_frame(struct DX11ScreenGrabber *grabber, ID3D11Resource *unused);
+NATIVELIBTEST_API int grabber_get_next_frame(struct DX11ScreenGrabber *grabber, ID3D11Resource *unused, UINT timeout);
 
 struct DX11ScreenGrabber {
 	IDXGIFactory1 *factory1;
@@ -61,7 +61,7 @@ int grabber_create_dest_texture(struct DX11ScreenGrabber *grabber)
 	if (res != S_OK) {
 		return -1;
 	}
-	while (grabber_get_next_frame(grabber, NULL))
+	while (grabber_get_next_frame(grabber, NULL, 0))
 		;
 	grabber->context->Flush();
 	res = grabber->device->CreateShaderResourceView(grabber->dest_tex, NULL, &grabber->dest_view);
@@ -171,7 +171,7 @@ err:
 	return NULL;
 }
 
-NATIVELIBTEST_API int grabber_get_next_frame(struct DX11ScreenGrabber *grabber, ID3D11Resource *dest)
+NATIVELIBTEST_API int grabber_get_next_frame(struct DX11ScreenGrabber *grabber, ID3D11Resource *dest, UINT timeout)
 {
 	DXGI_OUTDUPL_FRAME_INFO info;
 	IDXGIResource *resource;
@@ -179,7 +179,7 @@ NATIVELIBTEST_API int grabber_get_next_frame(struct DX11ScreenGrabber *grabber, 
 	HRESULT res;
 	int ret = 0;
 	
-	res = grabber->duplication->AcquireNextFrame(0, &info, &resource);
+	res = grabber->duplication->AcquireNextFrame(timeout, &info, &resource);
 
 	if (res != S_OK)
 		return -1;

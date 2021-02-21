@@ -17,6 +17,7 @@ struct DX11ScreenGrabber {
 	IDXGIAdapter1 *adapter;
 	IDXGIOutput *output;
 	IDXGIOutput1 *output1;
+	DXGI_OUTPUT_DESC outputdesc;
 
 	ID3D11Device *device;
 	ID3D11DeviceContext *context;
@@ -143,7 +144,6 @@ NATIVELIBTEST_API struct DX11ScreenGrabber *grabber_create(ID3D11Resource *tex, 
 		goto err;
 	}
 	*/
-	
 
 	res = grabber->output1->DuplicateOutput(grabber->device, &grabber->duplication);
 	if (res != S_OK) {
@@ -151,14 +151,15 @@ NATIVELIBTEST_API struct DX11ScreenGrabber *grabber_create(ID3D11Resource *tex, 
 		goto err;
 	}
 	
-	DXGI_OUTPUT_DESC outputdesc;
-	res = grabber->output->GetDesc(&outputdesc);
+	DXGI_OUTPUT_DESC outputd;
+	res = grabber->output->GetDesc(&outputd);
 	if (res != S_OK) {
 		*ret = -7;
 		goto err;
 	}
-	grabber->width = outputdesc.DesktopCoordinates.right - outputdesc.DesktopCoordinates.left;
-	grabber->height = outputdesc.DesktopCoordinates.bottom - outputdesc.DesktopCoordinates.top;
+	grabber->outputdesc = outputd;
+	grabber->width = outputd.DesktopCoordinates.right - outputd.DesktopCoordinates.left;
+	grabber->height = outputd.DesktopCoordinates.bottom - outputd.DesktopCoordinates.top;
 
 	if (grabber_create_dest_texture(grabber)) {
 		*ret = -8;
@@ -222,6 +223,14 @@ NATIVELIBTEST_API int grabber_get_width(struct DX11ScreenGrabber *grabber)
 NATIVELIBTEST_API int grabber_get_height(struct DX11ScreenGrabber *grabber)
 {
 	return grabber->height;
+}
+
+NATIVELIBTEST_API void grabber_get_desktop_coordinates(struct DX11ScreenGrabber* grabber, RECT *rect)
+{
+	rect->left = grabber->outputdesc.DesktopCoordinates.left;
+	rect->top = grabber->outputdesc.DesktopCoordinates.top;
+	rect->right = grabber->outputdesc.DesktopCoordinates.right;
+	rect->bottom = grabber->outputdesc.DesktopCoordinates.bottom;
 }
 
 NATIVELIBTEST_API ID3D11ShaderResourceView *grabber_get_dest_tex(struct DX11ScreenGrabber *grabber)
